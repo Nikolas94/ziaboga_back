@@ -1,0 +1,15 @@
+{"mezua":"Datu zuzenak",
+
+"gremioa0":"elantxobe",
+"motea0":"txantxo","EUS0":"24","ACT0":"100",
+"motea1":"tzito","EUS1":"102","ACT1":"54",
+"mul0":"2",
+	
+"gremioa1":"isuntza",
+"motea2":"moskitxua","EUS2":"18","ACT2":"89",
+"motea3":"txantxo","EUS3":"24","ACT3":"100",
+"motea4":"tzito","EUS4":"102","ACT4":"54",
+"motea5":"zirauna","EUS5":"45","ACT5":"92",
+"mul1":"4",
+
+"taulak":"2"}
