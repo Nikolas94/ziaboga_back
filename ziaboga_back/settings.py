@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'ziaboga_back.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-if os.getenv("DEVELOPMENT_MODE", "True") == "True":
+if os.getenv("DEVELOPMENT_MODE", "False") == "True":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
