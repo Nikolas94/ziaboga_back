@@ -1,3 +1,5 @@
+import datetime
+
 from django.shortcuts import render, redirect
 
 # Create your views here.
@@ -52,50 +54,10 @@ def estropadaDeskargatu(request):
     estropada = Estropada(estropadaIzena,postua,taldeIzena,denbora,diferentzia,puntuak)
     estropada.save()
 
-def erabiltzaileaSortu(request):
-    gremioIzena = "lekeitio"
-    erabiltzaileIzena = "lekeitio"
-    erabiltzaileAbizena = "lekeitio"
-    motea = "lekeitio"
-    pasahitza = "lekeitio"
-    puntuak = "lekeitio"
-    erabiltzailea = Erabiltzailea(gremioIzena, erabiltzaileIzena, erabiltzaileAbizena, motea, pasahitza, puntuak)
-    erabiltzailea.save()
 
-
-def kinielaBerriaSortu(request):
-    motea = "lekeitio"
-    estropadaIzena = "lekeitio"
-    bat = "lekeitio"
-    bi = "lekeitio"
-    hiru = "lekeitio"
-    lau = "lekeitio"
-    bost = "lekeitio"
-    sei = "lekeitio"
-    zazpi = "lekeitio"
-    zortzi = "lekeitio"
-    bederatzi = "lekeitio"
-    hamar = "lekeitio"
-    hamaika = "lekeitio"
-    hamabi = "lekeitio"
-    kiniela = Kiniela(motea=motea, estropadaIzena=estropadaIzena, bat=bat, bi=bi, hiru=hiru, lau=lau, bost=bost,
-                      sei=sei, zazpi=zazpi, zortzi=zortzi, bederatzi=bederatzi, hamar=hamar,
-                      hamaika=hamaika, hamabi=hamabi)
-    kiniela.save()
-
-def logeatu(request):
-    #motea eta pass jaso
-    era="Nikolas"
-    mot="Txantxooooo"
-    if Erabiltzailea.objects.filter(erabiltzaileIzena=era, motea=mot).exists():
-        return True
-    else:
-        return False
-
-def datuak(request,motea):
+def datuak(request):
     print("datuak bistaratuko ziren")
-    print(motea)
-
+    puntuazioaEzarri()
     return redirect('127.0.0.1:8000')
 
 @api_view(['GET', 'POST'])
@@ -224,7 +186,7 @@ Erabiltzaile batek bere motea eta pasahitza sartzerakoan erabiltzaile horren dit
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def erabiltzaileaEgiaztatu_apiView(request):
-
+    puntuazioaEzarri()
     if request.method == 'POST':
 
         val = request.data
@@ -605,5 +567,150 @@ def taldeakJaso_apiView(request):
                 errJson = json.loads(errStr)
                 return Response(errJson)
                 # return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def puntuazioaEzarri():
+
+    #val = request.data
+
+    egutegia = Egutegia.objects.all()
+
+    estropadaIzena = "Lekeitioko estropada"
+    motea = "txantxo"
+    liga = "ACT"
+
+    for egEs in egutegia:
+        print("estropadaIzenaEgutegia: "+egEs.estropadaIzena)
+        #TODO: Kontrolatu fetxa IF batekin
+
+        #TODO/
+
+        estropada = Estropada.objects.filter(estropadaIzena=egEs.estropadaIzena)
+        esEma=[]
+        k=1
+        for es in estropada:
+            esEma.append([k,es.taldeIzena])
+            k=k+1
+        print("Estropada emaitza: ")
+        for es in esEma:
+            print(str(es[0])+"-"+es[1])
+
+        kinielakEstropadako = Kiniela.objects.filter(estropadaIzena=egEs.estropadaIzena)
+        kiEma=[]
+        k=1
+        for eraEs in kinielakEstropadako:
+            kiEma.clear()
+            kiEma.append([k, eraEs.bat])
+            kiEma.append([k+1, eraEs.bi])
+            kiEma.append([k+2, eraEs.hiru])
+            kiEma.append([k+3, eraEs.lau])
+            kiEma.append([k+4, eraEs.bost])
+            kiEma.append([k+5, eraEs.sei])
+            kiEma.append([k+6, eraEs.zazpi])
+            kiEma.append([k+7, eraEs.zortzi])
+
+            liga = eraEs.liga
+            if liga == "ACT":
+                kiEma.append([k+8, eraEs.bederatzi])
+                kiEma.append([k+9, eraEs.hamar])
+                kiEma.append([k+10, eraEs.hamaika])
+                kiEma.append([k+11, eraEs.hamabi])
+            print(eraEs.motea+"-ren kiniela:")
+            for d in kiEma:
+                print(str(d[0])+"/"+d[1])
+            igarri = 0
+            hutzBat = 0
+            hutzBi = 0
+            ezIgarri = 0
+            difPuntuetan=0
+            print(eraEs.motea + "-ren igarketak:")
+            for es in esEma:
+                #print("es: "+es[1]+" pos: "+str(es[0]))
+
+                for ki in kiEma:
+                    #print("ki: " + ki[1]+" pos: "+str(ki[1]))
+                    if es[1].__eq__(ki[1]):
+                        if es[0]==ki[0]:
+                            print(es[1]+" == "+ki[1])
+                            igarri+=1
+                            break
+                        else:
+                            dif=es[0]-ki[0]
+                            if dif<0:
+                                dif=dif*(-1)
+                            if dif==1:
+                                hutzBat+=1
+                            elif dif==2:
+                                hutzBi+=1
+                            else:
+                                ezIgarri+=1
+                            difPuntuetan+=dif
+                            print("Diferentzia: " + str(dif))
+
+            print("Igarri: " + str(igarri))
+            print("hutzBat: " + str(hutzBat))
+            print("hutzBi: " + str(hutzBi))
+            print("ezIgarri: "+str(ezIgarri))
+
+            ################ Ondo=3, Fallo bat=1, Txarto= x!(Negatibauan)
+            # neg=0
+            # ran = range(ezIgarri)
+            # for i in ran:
+            #     neg+=1
+            #     neg+=i
+            # puntuak=(igarri*3)+(hutzBat)+(-1*neg)
+            ################
+
+            ################ Ondo=3, Fallo bat=1, Fallo bi=0, Txarto= x!(Negatibauan)
+            neg=0
+            ran = range(ezIgarri)
+            for i in ran:
+                neg+=1
+                neg+=i
+            puntuak=(igarri*3)+(hutzBat)+(-1*neg)
+            ################
+
+            ################ Ondo=3, Fallo bat=1, Txarto= -2
+            #puntuak = (igarri * 3) + (hutzBat) + (-2 * ezIgarri)
+            ################
+
+            ################ 12 punto - diferentzia
+            # puntuak=144-difPuntuetan
+            # print("Puntuazioa: " + str(puntuak))
+            ################
+
+            print("Puntuazioa: "+str(puntuak))
+
+            eraEs.puntuak=puntuak
+            eraEs.save()
+
+            erabPunt = ErabPunt.objects.filter(motea=eraEs.motea,liga=eraEs.liga)
+            for erPu in erabPunt:
+                #erPu.puntuak=0
+                erPu.puntuak+=puntuak
+                erPu.save()
+            print("/////////")
+
+        print("******")
+
+
+
+        #kiniela = Kiniela.objects.filter(estropadaIzena=val["estropadaIzena"],motea=val["motea"], liga=val["liga"])
+        #estropada=Estropada.objects.filter(estropadaIzena=val["estropadaIzena"],liga=val["liga"])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
